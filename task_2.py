@@ -1,23 +1,27 @@
 """
-Во втором массиве сохранить индексы четных элементов первого массива. Например, если дан массив со значениями
-8, 3, 15, 6, 4, 2, второй массив надо заполнить значениями 0, 3, 4, 5, (индексация начинается с нуля),
-т.к. именно в этих позициях первого массива стоят четные числа.
+Посчитать четные и нечетные цифры введенного натурального числа. Например, если введено число 34560,
+в нем 3 четные цифры (4, 6 и 0) и 2 нечетные (3 и 5).
 """
 
-import random
 
-SIZE = 10
-MIN_ITEM = 0
-MAX_ITEM = 1_000
-my_list = [random.randint(MIN_ITEM, MAX_ITEM) for _ in range(SIZE)]
+def f_odd(num):
+    if num:
+        i = num % 10
+        if i % 2:
+            return 1 + f_odd(num // 10)
+        else:
+            return f_odd(num // 10)
+    return 0
 
-print(*my_list, end='')
 
-even_list = []
+def f_len(num):
+    if num:
+        return 1 + f_len(num // 10)
+    return 0
 
-for i, num in enumerate(my_list):
-    if not num % 2:
-        even_list.append(i)
 
-print()
-print(*even_list, end='')
+user_num = int(input('Введите натуральное число:\n'))
+
+odd = f_odd(user_num)
+even = f_len(user_num) - odd
+print(f'Нечетных цифр - {odd}, четных - {even}')
