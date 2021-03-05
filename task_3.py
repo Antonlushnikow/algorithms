@@ -1,22 +1,25 @@
 """
-3. Сформировать из введенного числа обратное по порядку входящих в него цифр и вывести на экран.
-Например, если введено число 3486, надо вывести 6843.
+В массиве случайных целых чисел поменять местами минимальный и максимальный элементы.
 """
 
+import random
 
-def func(num):
-    tmp = num
-    i = 0
-    while tmp // 10:
-        tmp //= 10
-        i += 1
-    num = num - tmp * 10 ** i
-    if num:
-        return tmp + 10 * func(num)
-    return tmp
+SIZE = 10
+MIN_ITEM = 0
+MAX_ITEM = 30
+my_list = [random.randint(MIN_ITEM, MAX_ITEM) for _ in range(SIZE)]
 
+print(*my_list, end='')
 
-user_num = int(input('Введите натуральное число:\n'))
-res = func(user_num)
+idx_min, idx_max = (0, 1) if my_list[0] < my_list[1] else (1, 0)
 
-print(f'Обратное по порядку цифр число: {res}')
+for i, num in enumerate(my_list):
+    if num > my_list[idx_max]:
+        idx_max = i
+    if num < my_list[idx_min]:
+        idx_min = i
+
+my_list[idx_min], my_list[idx_max] = my_list[idx_max], my_list[idx_min]
+
+print()
+print(*my_list, end='')
