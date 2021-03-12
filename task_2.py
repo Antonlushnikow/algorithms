@@ -1,110 +1,64 @@
-"""
-Написать два алгоритма нахождения i-го по счёту простого числа. Функция нахождения простого числа
-должна принимать на вход натуральное и возвращать соответствующее простое число.
-Проанализировать скорость и сложность алгоритмов.
-"""
+"""Написать программу сложения и умножения двух положительных целых шестнадцатеричных чисел. При этом каждое число
+представляется как коллекция, элементы которой — цифры числа. Например, пользователь ввёл A2 и C4F. Нужно сохранить
+их как [‘A’, ‘2’] и [‘C’, ‘4’, ‘F’] соответственно. Сумма чисел из примера: [‘C’, ‘F’, ‘1’], произведение - [‘7’,
+‘C’, ‘9’, ‘F’, ‘E’]. """
 
-import cProfile
-import timeit
+from collections import deque
+
+num1_ = deque('A2')
+num2_ = deque('C4F')
+
+hex_int = ('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F')
 
 
-# Первый алгоритм
-def prime(n):
+def hex_sum(num1, num2):
+    tmp1, tmp2 = num1.copy(), num2.copy()
+    diff = len(tmp2) - len(tmp1)
+    if diff > 0:
+        tmp1, tmp2 = tmp2, tmp1
+    else:
+        diff *= -1
+
+    for _ in range(diff):  # выравниваем нулями слева
+        tmp2.appendleft('0')
+
+    res = deque()
+    mem = 0
+
+    for _ in range(len(tmp1)):
+        i1 = tmp1.pop()
+        i2 = tmp2.pop()
+        digit = hex_int[((hex_int.index(i1) + hex_int.index(i2)) % 16 + mem) % 16]  # пишем цифру
+        mem = (hex_int.index(i1) + hex_int.index(i2) + mem) // 16  # оставляем "в уме"
+        res.appendleft(digit)
+    if mem:
+        res.appendleft(hex_int[mem])
+    return res
+
+
+def hex_mul(num1, num2):
     lst = []
-    num = 2
-    i = 0
-    while i < n:
-        count = 0
-        for j in range(1, num):
-            if num % j == 0:
-                count += 1
-        if count == 1:
-            lst.append(num)
-            i += 1
-        num += 1
-    return lst[n-1]
+    count = 0
+    for i2 in reversed(num2):
+        tmp_num = deque()
+        mem = 0
+        for i1 in reversed(num1):
+            digit = hex_int[((hex_int.index(i1) * hex_int.index(i2)) % 16 + mem) % 16]
+            mem = (hex_int.index(i1) * hex_int.index(i2) + mem) // 16
+            tmp_num.appendleft(digit)
+        if mem:
+            tmp_num.appendleft(hex_int[mem])
+        for _ in range(count):
+            tmp_num.append('0')
+        count += 1
+        lst.append(tmp_num)
+
+    res = deque()
+    for i in range(len(lst)):
+        res = hex_sum(res, lst[i])
+
+    return res
 
 
-# Второй алгоритм (через решето Эратосфена)
-def sieve(n):
-    prime_lst = []
-    k = 2
-    while len(prime_lst) < n:  # пока длина списка с простыми числами меньше n
-        a = [0] * k            # повторяем решето эратосфена на увеличивающемся диапазоне чисел
-        for i in range(k):
-            a[i] = i
-        a[1] = 0
-
-        m = 2
-        while m < k:
-            if a[m] != 0:
-                j = m * 2
-                while j < k:
-                    a[j] = 0
-                    j = j + m
-            m += 1
-
-        for i in range(k-1, len(a)):
-            if a[i] != 0:
-                prime_lst.append(a[i])
-        k += 1
-    return prime_lst[n-1]
-
-
-def test_prime(func):
-    lst = [2, 3, 5, 7, 11, 13, 17, 19, 23]
-
-    for i, item in enumerate(lst):
-        assert item == func(i+1), f'Ошибка {i}'
-        print(f'Тест {i} OK')
-
-
-# test_prime(prime)
-# test_prime(sieve)
-
-print(timeit.timeit('prime(5)', number=1000, globals=globals()))  # 0.0082692
-print(timeit.timeit('prime(10)', number=1000, globals=globals()))  # 0.0371873
-print(timeit.timeit('prime(20)', number=1000, globals=globals()))  # 0.186719
-print(timeit.timeit('prime(40)', number=1000, globals=globals()))  # 1.056029
-print(timeit.timeit('prime(60)', number=1000, globals=globals()))  # 2.70110
-print(timeit.timeit('prime(80)', number=1000, globals=globals()))  # 5.6186
-print(timeit.timeit('prime(100)', number=1000, globals=globals()))  # 9.7530
-
-cProfile.run('prime(1000)')
-
-#       1004 function calls in 2.372 seconds
-#
-# Ordered by: standard name
-#
-# ncalls  tottime  percall  cumtime  percall filename:lineno(function)
-#      1    0.000    0.000    2.372    2.372 <string>:1(<module>)
-#      1    2.372    2.372    2.372    2.372 task_2.py:12(prime)
-#      1    0.000    0.000    2.372    2.372 {built-in method builtins.exec}
-#   1000    0.000    0.000    0.000    0.000 {method 'append' of 'list' objects}
-#      1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
-
-print(timeit.timeit('sieve(5)', number=1000, globals=globals()))  # 0.02575
-print(timeit.timeit('sieve(10)', number=1000, globals=globals()))  # 0.129408
-print(timeit.timeit('sieve(20)', number=1000, globals=globals()))  # 0.689866
-print(timeit.timeit('sieve(40)', number=1000, globals=globals()))  # 4.07719
-print(timeit.timeit('sieve(60)', number=1000, globals=globals()))  # 10.82749
-print(timeit.timeit('sieve(80)', number=1000, globals=globals()))  # 24.28957
-print(timeit.timeit('sieve(100)', number=1000, globals=globals()))  # 44.75684
-
-cProfile.run('sieve(1000)')
-
-# 16843 function calls in 12.139 seconds
-#
-#    Ordered by: standard name
-#
-#    ncalls  tottime  percall  cumtime  percall filename:lineno(function)
-#         1    0.000    0.000   12.139   12.139 <string>:1(<module>)
-#         1   12.136   12.136   12.139   12.139 task_2.py:29(sieve)
-#         1    0.000    0.000   12.139   12.139 {built-in method builtins.exec}
-#     15839    0.002    0.000    0.002    0.000 {built-in method builtins.len}
-#      1000    0.000    0.000    0.000    0.000 {method 'append' of 'list' objects}
-#         1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
-
-# по графикам кажется, что оба O(n^2). Эратосфен получился не очень оптимальным, он скорее удобен,
-# когда известно максимальное число. Или я неудачно реализовал.
-# графики - https://docs.google.com/spreadsheets/d/1IUuztM-9sNmlg-0_VSX4G1NJLAaJ6zHccC0wybNG0RU/edit?usp=sharing
+print(hex_sum(num1_, num2_))
+print(hex_mul(num1_, num2_))
