@@ -60,27 +60,26 @@ print(show(set_array, num2, frequency, spam, j, item))  # 17836 байт
 print('*' * 50)
 
 
-# Вариант 3. С двойным циклом без множества
+# Вариант 3. С сортировкой и без множества
 array.sort()
 count3 = 1
 res = array[0]
 last = len(array) - 1
 k = 0
 while k < last:
-    tmp = 1
+    eggs = 1
     while k < last and array[k] == array[k + 1]:
-        tmp += 1
+        eggs += 1
         k += 1
-    if tmp > count3:
-        count = tmp
+    if eggs > count3:
+        count3 = eggs
         res = array[k]
     k += 1
 
-print(show(count3, res, last, k, tmp))  # 140 байт
+print(show(count3, res, last, k, eggs))  # 140 байт
 
 # Python 3.9.2, 64 bit
-# Первый и третий алгоритмы выполняются за O(n),
+# Сложность первого алгоритма - O(n), третьего - O(n * logn),
 # при этом третий занимает в разы меньше памяти (140 против 17808 байт).
 # Второй алгоритм выполняется за O(n ** 2) и использует примерно такой же объем памяти,
 # как и вариант со словарем (17836 байт).
-# Третий вариант, таким образом, лучше.
