@@ -1,29 +1,86 @@
-"""Пользователь вводит данные о количестве предприятий, их наименования и прибыль за 4 квартала (т.е. 4 числа) для
-каждого предприятия. Программа должна определить среднюю прибыль (за год для всех предприятий) и отдельно вывести
-наименования предприятий, чья прибыль выше среднего и ниже среднего. """
+"""
+Подсчитать, сколько было выделено памяти под переменные в ранее разработанных программах в рамках первых трех уроков.
+Проанализировать результат и определить программы с наиболее эффективным использованием памяти.
 
-from collections import defaultdict
+Определить, какое число в массиве встречается чаще всего.
+"""
 
-companies = defaultdict(float)
-count = int(input('Введите количество предприятий\n'))
-over_profit = 0
+import random
+import sys
 
-for i in range(1, count+1):
-    comp_name = input(f'Введите название предприятия {i}\n')
-    for j in range(1, 5):
-        companies[comp_name] += float(input(f'Введите прибыль за {j} квартал\n'))
-    over_profit += companies[comp_name]
+SIZE = 1000
+MIN_ITEM = 0
+array = [random.randint(MIN_ITEM, 1000) for _ in range(SIZE)]
+print(array)
+print('*' * 50)
 
-avg = over_profit / count
 
-print(f'Средняя прибыль: {avg:.2f}')
+def show(*args):
+    size_ = 0
+    for arg in args:
+        if hasattr(arg, '__iter__'):
+            size_ += show(*arg)
+        else:
+            size_ += sys.getsizeof(arg)
+    return size_
 
-print(f'\nПредприятия с прибылью выше среднего:')
-for name, profit in companies.items():
-    if profit >= avg:
-        print(f'{name} ({profit})', end=', ')
 
-print(f'\n\nПредприятия с прибылью ниже среднего:')
-for name, profit in companies.items():
-    if profit < avg:
-        print(f'{name} ({profit})', end=', ')
+# Вариант 1. Со словарем
+d = {}
+freq_num = array[0]
+for num1 in array:
+    if num1 in d:
+        d[num1] += 1
+    else:
+        d[num1] = 1
+count1 = 1
+for key in d:
+    if d[key] > count1:
+        count1 = d[key]
+        freq_num = key
+
+print(show(d, freq_num, num1, count1, key))  # 17808 байт
+print('*' * 50)
+
+
+# Вариант 2. С вложенными циклами и множеством
+set_array = set(array)
+num2 = array[0]
+frequency = 1
+for item in set_array:
+    spam = 1
+    for j in range(len(array)):
+        if item == array[j]:
+            spam += 1
+    if spam > frequency:
+        frequency = spam
+        num2 = item
+
+print(show(set_array, num2, frequency, spam, j, item))  # 17836 байт
+print('*' * 50)
+
+
+# Вариант 3. С двойным циклом без множества
+array.sort()
+count3 = 1
+res = array[0]
+last = len(array) - 1
+k = 0
+while k < last:
+    tmp = 1
+    while k < last and array[k] == array[k + 1]:
+        tmp += 1
+        k += 1
+    if tmp > count3:
+        count = tmp
+        res = array[k]
+    k += 1
+
+print(show(count3, res, last, k, tmp))  # 140 байт
+
+# Python 3.9.2, 64 bit
+# Первый и третий алгоритмы выполняются за O(n),
+# при этом третий занимает в разы меньше памяти (140 против 17808 байт).
+# Второй алгоритм выполняется за O(n ** 2) и использует примерно такой же объем памяти,
+# как и вариант со словарем (17836 байт).
+# Третий вариант, таким образом, лучше.
