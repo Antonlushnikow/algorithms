@@ -1,32 +1,57 @@
-"""
-Отсортируйте по возрастанию методом слияния одномерный вещественный массив, заданный случайными числами на промежутке
-[0; 50). Выведите на экран исходный и отсортированный массивы.
-"""
+"""Закодируйте любую строку по алгоритму Хаффмана"""
 
-import random
-
-SIZE = 10
-MIN_NUM = 0
-MAX_NUM = 50
-
-array = [random.randint(MIN_NUM, MAX_NUM - 1) for _ in range(SIZE)]
-print(array)
+from collections import Counter
 
 
-def merge_sort(data):
-    if len(data) == 1:
-        return data
+class MyNode:
+    def __init__(self, value=None, left=None, right=None):
+        self.right = right
+        self.left = left
+        self.value = value
+
+    def __repr__(self):
+        return f'{self.value}=>{self.left} - {self.right}'
+
+
+def tree(data):  # Создание дерева по строке
+    cnt = Counter()
+    for key, value in Counter(data).items():
+        cnt[MyNode(key)] = value
+    spam = cnt.most_common()  # отсортированный список узлов
+    eggs = None
+    while len(spam) > 1:
+        eggs = MyNode()
+        eggs.left = spam[-2][0]
+        eggs.right = spam[-1][0]
+        count = spam[-1][1] + spam[-2][1]
+        del spam[-2:]
+        spam.append((eggs, count))
+        spam.sort(key=lambda item: item[1], reverse=True)
+    return eggs
+
+
+def get_path(tree_, tmp_dict, path=''):  # рекурсивный обход дерева
+    if tree_.value is not None:
+        tmp_dict[tree_.value] = path
     else:
-        arr1 = merge_sort(data[0:len(data) // 2])
-        arr2 = merge_sort(data[len(data) // 2:len(data)])
+        get_path(tree_.left, tmp_dict, f'{path}0')
+        get_path(tree_.right, tmp_dict, f'{path}1')
+    return tmp_dict
 
-    res = []
-    while len(arr1) and len(arr2):
-        spam = arr1.pop(0) if arr1[0] < arr2[0] else arr2.pop(0)
-        res.append(spam)
-    res.extend(arr1)
-    res.extend(arr2)
+
+def haff_table(data):  # создание таблицы кодирования
+    haff_tree = tree(data)  # Создание дерева
+    return get_path(haff_tree, {})
+
+
+def code_text(data):  # кодирование строки
+    spam = haff_table(data)
+    res = ''
+    for letter in data:
+        res += spam[letter]
     return res
 
 
-print(merge_sort(array))
+my_string = 'мама мыла раму'
+print(haff_table(my_string))
+print(code_text(my_string))

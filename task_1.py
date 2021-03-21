@@ -1,28 +1,20 @@
-"""
-Отсортируйте по убыванию методом пузырька одномерный целочисленный массив, заданный случайными числами
-на промежутке [-100; 100). Выведите на экран исходный и отсортированный массивы.
-"""
+"""Определение количества различных подстрок с использованием хеш-функции. Пусть на вход функции дана строка.
+Требуется вернуть количество различных подстрок в этой строке. """
 
-import random
-
-SIZE = 10
-MIN_NUM = -100
-MAX_NUM = 100
-
-array = [random.randint(MIN_NUM, MAX_NUM - 1) for _ in range(SIZE)]
-print(array)
+import hashlib
 
 
-def bubble_sort(data):
-    data = data.copy()
-    count = len(data) - 1
-    while count > 0:
-        for i in range(count):
-            if data[i] < data[i + 1]:
-                data[i], data[i + 1] = data[i + 1], data[i]
-        count -= 1
+def substrings(data):
+    spam = {}
+    len_ = len(data)
+    for i in range(len_):
+        for j in range(i, len_ + 1):
+            eggs = hashlib.sha1(data[i:j].encode('utf-8')).hexdigest()
+            if eggs not in spam:
+                spam[eggs] = 1
 
-    return data
+    return len(spam) - 2
 
 
-print(bubble_sort(array))
+my_string = 'papa'
+print(substrings(my_string))
